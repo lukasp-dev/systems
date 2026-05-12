@@ -3,86 +3,102 @@
 using namespace std;
 
 template <typename T>
-class ArrayList {
-private:
-    T* arr;
-    int size;
-    int capacity;
+class ArrayList{
+int capacity;
+int size;
+T* arr;
 
-    void regrow() {
-        int newCap = this->capacity * 2;
-        T* newArray = new T[newCap];
-        for (int i = 0; i < this->size; i++) {
-            newArray[i] = this->arr[i];
-        }
-        delete[] this->arr;
-        this->arr = newArray;
-        this->capacity = newCap;
+void regrow(){
+    int newCapacity = capacity*2;
+    T* newArr = new T[newCapacity];
+    for(int i=0; i<size; ++i){
+        newArr[i] = arr[i];
     }
+
+    delete[] arr;
+    arr = newArr;
+    capacity = newCapacity;
+}
 
 public:
-    static const int INITIAL_CAPACITY = 9;
+ArrayList ():capacity{10}, size{0}, arr{new T[10]} {}
+ArrayList(const int& capacity):capacity{capacity}, size{0}, arr{new T[capacity]}{}
+~ArrayList(){
+    delete[] this->arr;
+}
 
-    ArrayList() {
-        this->arr = new T[INITIAL_CAPACITY];
-        this->size = 0;
-        this->capacity = INITIAL_CAPACITY;
+void addFront(T data){
+    addAtIndex(0, data);
+}
+
+void addBack(T data){
+    addAtIndex(size, data);
+}
+
+void addAtIndex(int idx, T data){
+    if(idx < 0 || idx > size) throw out_of_range("bad index");
+    if(size == capacity) regrow();
+
+    for(int i=size; i>idx; --i){
+        arr[i] = arr[i-1];
     }
 
-    ~ArrayList() {
-        delete[] this->arr;
+    arr[idx] = data;
+    ++size;
+}
+
+T removeFront(){
+    return removeAtIndex(0);
+}
+
+T removeBack(){
+    return removeAtIndex(size-1);
+}
+
+T removeAtIndex(int idx){
+    if(idx < 0 || idx >= size) throw out_of_range("bad index");
+
+    T removed = arr[idx];
+    
+    for(int i=idx; i<size-1; ++i){
+        arr[i] = arr[i+1];
     }
 
-    void addAtIndex(int index, const T& data) {
-        if (index < 0 || index > this->size) throw runtime_error("bad index");
-        if (this->size == this->capacity) regrow();
+    --size;
+    return removed;
+}
 
-        // shift
-        for (int i = this->size - 1; i >= index; i--) {
-            this->arr[i + 1] = this->arr[i];
+/**
+ * Prints the current status of the Arraylist
+ * 
+ * Caution: this is only valid for std::streamable.
+ * If not std::streamable, have to overload the << operator.
+ */
+void printStatusQuo(){
+    T* tmp = arr;
+    for(int i = 0; i < size; ++i){
+            cout << *(tmp + i) << " "; 
         }
-
-        this->arr[index] = data;
-        this->size++;
+        cout << "\n";
     }
-
-    void addToFront(const T& data) { addAtIndex(0, data); }
-    void addToBack(const T& data) { addAtIndex(this->size, data); }
-
-    T removeAtIndex(int index) {
-        if (index < 0 || index >= this->size) throw runtime_error("bad index");
-        T removed = this->arr[index];
-
-        for (int i = index; i < this->size - 1; i++) {
-            this->arr[i] = this->arr[i + 1];
-        }
-
-        this->size--;
-        return removed;
-    }
-
-    T removeFromFront() { return removeAtIndex(0); }
-    T removeFromBack() { return removeAtIndex(this->size - 1); }
-
-    T get(int index) {
-        if (index < 0 || index >= this->size) throw runtime_error("bad index");
-        return this->arr[index];
-    }
-
-    int getSize() { return this->size; }
 };
 
 int main() {
-    ArrayList<string> arr;
-    arr.addToBack("hello");
-    arr.addToFront("first");
-    arr.addToBack("world");
+    try {
+        ArrayList<int> al; 
+        al.addBack(10);  
+        al.addAtIndex(1, 23);
+        al.addBack(20);  
+        al.addFront(5);
 
-    cout << arr.get(1) << endl; // expect "hello"
+        al.printStatusQuo();
 
-    cout << arr.removeFromBack() << endl; // world
-    cout << arr.removeFromFront() << endl; // first
-    cout << arr.getSize() << endl; // 1
+        cout << "Removed: " << al.removeFront() << endl; 
+        cout << "Back: " << al.removeBack() << endl;
 
+        al.printStatusQuo();
+    } catch (const exception& e) {
+        cerr << "Error: " << e.what() << endl;
+    }
     return 0;
 }
