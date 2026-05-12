@@ -2,7 +2,8 @@
 name: smart-commit
 description: >-
   Stages the right paths, writes an accurate commit message from diffs, and runs
-  git commit so the user does not commit manually. Use when the user says smart
+  git commit so the user does not commit manually. Loads the type_correction
+  skill for a typo-only pass on prose in scope. Use when the user says smart
   commit, auto commit, commit this, or wants Cursor to finish the commit.
 ---
 
@@ -13,10 +14,11 @@ Goal: **Cursor performs the commit** (`git add` + `git commit`). The user should
 ## Workflow
 
 1. **Inspect**: `git status`, then `git diff` for unstaged tracked changes and `git diff --staged` if anything is already staged. Respect a **narrow scope** if the user named files, directories, or “only X”.
-2. **Decide commit boundaries**: If unrelated changes are mixed and the user did not insist on one commit, do **multiple** commits (stage subset A → commit → stage subset B → commit). Otherwise one commit is fine.
-3. **Stage**: `git add` only paths that belong in this commit. Do **not** blindly `git add .` unless the user asked for everything. Skip noise unless requested: editor swap files, `.swp`, build binaries, `.cph/`, accidental huge untracked trees—**ask** or exclude them.
-4. **Commit**: Run `git commit` with a good message (use `git commit -m "subject" -m "body"` for a short body, or `-F` with a temp file for longer bodies). Request **git_write** (and network only if hooks need it).
-5. **Confirm**: Show `git log -1 --oneline` (and status) so the user sees the result.
+2. **Type correction (required)**: Read and follow **[`type_correction/SKILL.md`](../type_correction/SKILL.md)** (or `@type_correction`). For every file in this commit scope that contains narrative prose (e.g. `.md`, long comments in code), apply **only** typographical or spelling fixes allowed there—**do not** change substance, explanations, or the author’s style. Skip pure code-only files unless they have obvious comment typos in scope. Re-run `git diff` after edits so the commit message matches final text.
+3. **Decide commit boundaries**: If unrelated changes are mixed and the user did not insist on one commit, do **multiple** commits (stage subset A → commit → stage subset B → commit). Otherwise one commit is fine.
+4. **Stage**: `git add` only paths that belong in this commit. Do **not** blindly `git add .` unless the user asked for everything. Skip noise unless requested: editor swap files, `.swp`, build binaries, `.cph/`, accidental huge untracked trees—**ask** or exclude them.
+5. **Commit**: Run `git commit` with a good message (use `git commit -m "subject" -m "body"` for a short body, or `-F` with a temp file for longer bodies). Request **git_write** (and network only if hooks need it).
+6. **Confirm**: Show `git log -1 --oneline` (and status) so the user sees the result.
 
 ## Message style
 
