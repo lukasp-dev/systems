@@ -4,6 +4,8 @@
 #include <assert.h>
 #include "common.h"
 
+/* OSTEP Figure 2.1 — see ../03.figure2.1_cpu_process_demo.md */
+
 int 
 main (int argc, char *argv[])
 {

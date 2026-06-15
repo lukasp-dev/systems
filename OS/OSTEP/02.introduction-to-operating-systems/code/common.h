@@ -1,6 +1,8 @@
 #ifndef __common_h__
 #define __common_h__
 
+/* Used by figure2.1.c — see ../03.figure2.1_cpu_process_demo.md */
+
 #include <sys/time.h>
 #include <assert.h>
 
