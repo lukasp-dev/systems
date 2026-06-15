@@ -1,22 +1,34 @@
-#include <bits/stdc++.h>
-using namespace std;
+#include <iostream>
+#include <cstdint>
 
-
-
-int go(const vector<int>& rods, int depth, int limit){
-
-}
+class Cat{
+public:
+    Cat(){
+        std::cout << "meow" << "\n";
+    }
+    ~Cat(){
+        std::cout << "bye" << "\n";
+    }
+private:
+    int m_age;
+};
 
 int main(){
-    int N; cin >> N;
-    vector<int> rods;
-    int rod;
-    for(int i=0; i<N; ++i){
-        cin >> rod;
-        rods.push_back(rod);
-    }
+    // C style heap Cat
+    Cat* cat_ptr = (Cat *)malloc(sizeof(Cat));
+    free(cat_ptr);
 
-    return go(rods, 0, rods.size()-1);
+    // C style heap Cats(Cat array);
+    Cat* catap = (Cat *)malloc(sizeof(Cat)*5);
+    free(catap);
 
-    return 0;
+    // C style heap int
+    int32_t* ip = (int32_t *) malloc(sizeof(int32_t));
+    *ip = 100;
+    free(ip);
+
+    // C style heap array
+    int32_t* iap = (int32_t *)malloc(sizeof(int32_t)*5);
+    iap[0] = 100;
+    free(iap);
 }

@@ -5,6 +5,19 @@
 *.swp
 .cph/
 
+# Compiled object code / executables
+*.exe
+*.o
+*.obj
+*.out
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
+*.class
+*.pyc
+
 # Nested repo (has its own .git; large data files)
 digital-art-auction-engine/
 
