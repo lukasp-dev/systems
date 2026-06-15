@@ -1,4 +1,4 @@
-# C++ Study Repository
+# System Study Repository
 
 This repository is a personal C++ study workspace used to build practical skills
 through small programs, algorithm exercises, and focused experiments.
@@ -13,7 +13,7 @@ through small programs, algorithm exercises, and focused experiments.
 ## Repository layout
 
 - `algorithms/`: algorithm exercises and problem-focused implementations.
-- `sandbox/`: 자유롭게 컴파일/실행 실험을 해보는 개인 샌드박스.
+- `sandbox/`: compile and run anything you want.
 - `00.cpp_basics/`: language fundamentals and syntax drills.
 - Additional folders are added over time for topics like systems, networking,
   and architecture-oriented C++ practice.
