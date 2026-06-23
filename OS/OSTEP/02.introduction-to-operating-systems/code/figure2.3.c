@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "common.h"
 
-/* OSTEP Figure 2.3 — see ../05.virtualizing_memory.md */
+/* OSTEP Figure 2.3 — see ../04.virtualizing_memory.md */
 
 int
 main(int argc, char *argv[]){

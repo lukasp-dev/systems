@@ -3,7 +3,7 @@
 #include "common.h"
 #include "common_threads.h"
 
-/* OSTEP Figure 2.5 — see ../06.figure2.5_race_demo.md */
+/* OSTEP Figure 2.5 — see ../05.figure2.5_race_demo.md */
 
 volatile int counter = 0;
 int loops;
