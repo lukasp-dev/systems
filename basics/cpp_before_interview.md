@@ -868,7 +868,7 @@ public:
 객체 상태를 **바꾸지 않는** 멤버 함수에 `const`를 붙인다.
 
 ```cpp
-class Person {
+class Profile {
 private:
     std::string name;
 
@@ -888,7 +888,7 @@ public:
 ### const 객체
 
 ```cpp
-const Person p("Tom");
+const Profile p("Tom");
 // p.setName("Bob");  // error
 std::cout << p.getName();  // OK — const 멤버 함수만 호출 가능
 ```
@@ -912,18 +912,18 @@ std::cout << p.getName();  // OK — const 멤버 함수만 호출 가능
 객체를 **복사해서 새 객체를 만들 때** 호출.
 
 ```cpp
-class Person {
+class Contact {
 public:
     std::string name;
 
-    Person(std::string n) : name(std::move(n)) {}
+    Contact(std::string n) : name(std::move(n)) {}
 
-    Person(const Person& other) : name(other.name) {}
+    Contact(const Contact& other) : name(other.name) {}
 };
 
 int main() {
-    Person a("Tom");
-    Person b = a;  // copy constructor
+    Contact a("Tom");
+    Contact b = a;  // copy constructor
 }
 ```
 
@@ -1192,9 +1192,9 @@ std::weak_ptr<int> w = p1;
 **순환 참조 함정:**
 
 ```cpp
-struct B;
-struct A { std::shared_ptr<B> b; };
-struct B { std::shared_ptr<A> a; };  // leak — 서로 refcount 1씩 남음
+struct Child;
+struct Parent { std::shared_ptr<Child> child; };
+struct Child  { std::shared_ptr<Parent> parent; };  // leak — 서로 refcount 1씩 남음
 ```
 
 한쪽을 `std::weak_ptr`로 바꿔 끊는다.
@@ -1361,32 +1361,32 @@ public:
 다중 상속에서 같은 base가 **두 번** 들어가는 문제.
 
 ```text
-    A
-   / \
-  B   C
-   \ /
-    D
+      Stream
+      /    \
+InputStream OutputStream
+      \    /
+     IOStream
 ```
 
 ```cpp
-class A { public: int _a; };
-class B : public A { public: int _b; };
-class C : public A { public: int _c; };
-class D : public B, public C { public: int _d; };
+class Stream       { public: int _a; };
+class InputStream  : public Stream { public: int _b; };
+class OutputStream : public Stream { public: int _c; };
+class IOStream     : public InputStream, public OutputStream { public: int _d; };
 
-// D obj;
-// obj._a;  // error — A가 B 안에 하나, C 안에 하나
+// IOStream obj;
+// obj._a;  // error — Stream이 InputStream 안에 하나, OutputStream 안에 하나
 ```
 
 ### 해결: virtual inheritance
 
 ```cpp
-class B : virtual public A {};
-class C : virtual public A {};
-class D : public B, public C {};
+class InputStream  : virtual public Stream {};
+class OutputStream : virtual public Stream {};
+class IOStream     : public InputStream, public OutputStream {};
 
-// D obj;
-// obj._a;  // OK — A가 하나만
+// IOStream obj;
+// obj._a;  // OK — Stream이 하나만
 ```
 
 > **면접 답변**
