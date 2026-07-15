@@ -111,6 +111,18 @@ public:
 };
 
 int main(){
-    
+    SkipList skip;
+    skip.add(1);
+    skip.add(12);
+    skip.add(3);
+    skip.add(7);
+    skip.add(128);
+    skip.add(2);
+
+    cout << skip.search(11) << '\n';
+    cout << skip.search(12)<< '\n';
+    skip.erase(12);
+    cout << skip.search(12)<< '\n';
+
     return 0;
 }
