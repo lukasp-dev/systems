@@ -101,15 +101,29 @@ private:
         // Left Heavy
         if (balance > 1) {
             // TODO
+            int left_balance = getBalance(node->left);
             // LL case
-            // LR case
+            if(left_balance >= 0){ // balance == 0 인 경우도 right rotation 한 번만 하는게 맞음.
+                return rotateRight(node);
+            } else if(left_balance < 0) {
+                // LR case
+                node->left = rotateLeft(node->left);
+                return rotateRight(node);
+            }
         }
 
         // Right Heavy
         if (balance < -1) {
             // TODO
+            int right_balance = getBalance(node->right);
             // RR case
-            // RL case
+            if(right_balance <= 0) {
+                return rotateLeft(node);
+            } else if(right_balance > 0) {
+                // RL case
+                node->right = rotateRight(node->right);
+                return rotateLeft(node);
+            }
         }
 
         return node;
@@ -120,10 +134,8 @@ private:
     // ---
     Node* insertNode(Node* node, int value, bool& inserted) {
         if(node == nullptr) {
-            Node* node = new Node(value);
             inserted = true;
-
-            return new Node;
+            return new Node(value);
         }
 
         if(node->val < value){
@@ -156,32 +168,33 @@ private:
 
         if(value < node->val) {
             node->left = eraseNode(node->left, value, erased);
-        } else if(value < node->val) {
+        } else if(value > node->val) {
             node->right = eraseNode(node->right, value, erased);
+        } else {
+            erased = true;
+
+            if(!node->left && !node->right) {
+                delete node;
+                return nullptr;
+            } 
+            
+            if (!node->left) {
+                Node* child = node->right;
+                delete node;
+                return child;
+            } 
+            
+            if (!node->right) {
+                Node* child = node->left;
+                delete node;
+                return child;
+            } 
+
+            Node* successor = findMin(node->right);
+            node->val = successor->val;
+            bool dummy = false;
+            node->right = eraseNode(node->right, node->val, dummy);
         }
-        erased = true;
-
-        if(!node->left && !node->right) {
-            delete node;
-            return nullptr;
-        } 
-        
-        if (!node->left) {
-            Node* child = node->right;
-            delete node;
-            return child;
-        } 
-        
-        if (!node->right) {
-            Node* child = node->left;
-            delete node;
-            return child;
-        } 
-
-        Node* successor = findMin(node->right);
-        node->val = successor->val;
-        bool dummy = false;
-        node->right = eraseNode(node->right, node->val, dummy);
 
         return rebalance(node);
     }
@@ -197,7 +210,7 @@ private:
             return searchNode(node->right, value);
         }
 
-        return node;
+        return true;
     }
 
     void inorderNode(const Node* node) const {
@@ -218,6 +231,9 @@ private:
 
 public:
     AVLTree() : root(nullptr) {}
+
+    AVLTree(const AVLTree&) = delete;
+    AVLTree& operator=(const AVLTree&) = delete;
 
     ~AVLTree() {
         destroyNode(root);
