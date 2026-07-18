@@ -47,8 +47,7 @@ public:
         siftUp(n);
     }
     void pop(){
-        int n = static_cast<int>(heap.size());
-        if(n == 0) return;
+        if(heap.empty()) throw out_of_range("MinHeap is empty");
 
         swap(heap[0], heap.back());
         heap.pop_back();
@@ -63,8 +62,7 @@ public:
     bool empty() const {
         return heap.empty();
     }
-    int size() const {
-        int n = static_cast<int>(heap.size());
-        return n;
+    size_t size() const {
+        return heap.size();
     }
 };
