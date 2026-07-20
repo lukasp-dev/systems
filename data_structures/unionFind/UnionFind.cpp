@@ -1,47 +1,52 @@
-#include <iostream>
+#include <bits/stdc++.h>
 using namespace std;
 
-class UnionFind{
+class UnionFind {
 private:
     vector<int> parent;
-    vector<int> rank;
-    
-public:
-    UnionFind(int n){
-        this->parent.resize(n);
-        this->rank.resize(n, 1);
+    vector<int> size; // 집합 크기는 각 component 의 root의 size만 유효하다.
 
-        for(int i=0; i<n; i++){
-            parent[i] = i;
-        }
+public:
+    explicit UnionFind(int n) : parent(n), size(n, 1){
+        iota(parent.begin(), parent.end(), 0); // 세 번째 인자는 채우기 시작할 초기값임.
     }
 
+    // x가 속한 집합의 대표자를 찾는 함수.
     int find(int x){
-        if(parent[x] != x){
-            parent[x] = find(parent[x]);
+        if(parent[x] == x) {
+            return x;
         }
+
+        parent[x] = find(parent[x]); // path compression
+        /*
+        예) 4 → 3 → 2 → 1 → 0
+        4 ─┐
+        3 ─┤
+        2 ─┼→ 0
+        1 ─┘
+        */
         return parent[x];
     }
 
-    void unite(int a, int b){
-        int pa = find(a);
-        int pb = find(b);
+    // 두 원소가 속한 집합의 root를 찾아서 하나로 합치는 함수
+    bool unite(int a, int b) {
+        int rootA = find(a);
+        int rootB = find(b);
 
-        if(pa == pb) return;
+        if(rootA == rootB) return false;
 
-        if(rank[pa] < rank[pb]){
-            parent[pa] = pb;
-        }else if(rank[pa] > rank[pb]){
-            parent[pb] = pa;
-        }else{
-            parent[pb] = pa;
-            rank[pa]++;
+        // union by size: 작은 트리를 큰 트리 밑에 붙임.
+        if(size[rootA] < size[rootB]) {
+            swap(rootA, rootB);
         }
+
+        parent[rootB] = rootA;
+        size[rootA] += size[rootB];
+
+        return true;
+    }
+
+    bool connected(int a, int b) {
+        return find(a) == find(b);
     }
 };
-
-
-
-int main(){
-    return 0;
-}
