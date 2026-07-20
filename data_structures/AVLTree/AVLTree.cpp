@@ -173,7 +173,7 @@ private:
         } else {
             erased = true;
 
-            if(!node->left && !node->right) {
+            if(!node->left && !node->right) { // 사실상 없어도 되긴 함
                 delete node;
                 return nullptr;
             } 
