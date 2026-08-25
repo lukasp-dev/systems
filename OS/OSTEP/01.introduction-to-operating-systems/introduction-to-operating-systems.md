@@ -14,16 +14,22 @@
 
 ---
 
+
+
 ## Abstraction or Arbitration
 
 > **TL;DR** Two core OS jobs — **abstraction** hides hardware complexity behind uniform interfaces; **arbitration** shares limited resources among competing processes.
 
 > **How to tell them apart:** ask *"is the OS hiding messy details (→ abstraction)"* or *"is it dividing one limited resource among many (→ arbitration)?"*
 
+
+
 #### Abstraction (Hiding Complexity)
+
 Hides low-level hardware complexity behind high-level, simplified interfaces (APIs), providing high-level, uniform interfaces to apps.
 
 #### Arbitration (Managing Resources)
+
 Controls and allocates shared resources among multiple users or processes to prevent conflicts.
 
 #### Examples
@@ -34,20 +40,34 @@ Controls and allocates shared resources among multiple users or processes to pre
 
 ---
 
+
+
 ## OS Elements
 
 > **TL;DR** The OS exposes **abstractions** (what you see), realized by **mechanisms** (how) and governed by **policies** (which/when). Key principles: separate mechanism from policy, optimize the common case, and remember that crossing the user/kernel boundary has a cost.
 
+
+
 #### Abstractions
+
 - process, thread, file, socket, memory page
 
+
+
 #### Mechanisms
+
 - create, schedule, open, write, allocate
 
+
+
 #### policies
+
 - least-recently used (LRU), earliest deadline first (EDF), etc.
 
+
+
 ### OS Design Principles
+
 **1. Separation of Mechanism & Policy**
 This principle is about modularity. It suggests that the "how" (mechanism) should be independent from "why/when" (policy)
 
@@ -61,22 +81,26 @@ This is a core tenet of computer architecture (often attributed to Gene Amdahl).
 To apply this, you must analyze your workload requirements:
 
 - **Instruction level:** If 90% of your instructions are simple additions and only 1% are complex divisions, you make the adder as fast as possible, even if it makes the divider slightly slower.
-
 - **OS level:** If most processes are short-lived interactive tasks, the scheduler should be tuned to minimize response time for those, rather than optimizing for long-running batch jobs.
-
 - **Memory:** Caching is the ultimate "common case" optimization. It assumes that programs will likely access the same data repeatedly (temporal locality), so we optimize for the case where data is in the L1 cache.
 
+
+
 ### Crossing the OS Boundary
+
 **user/Kernel Transitions**
 They are not chip!!
+
 - hardware supported
-    - e.g., traps on illegal instructions or memory accesses requiring special privilege.
+  - e.g., traps on illegal instructions or memory accesses requiring special privilege.
 - involves a number of instructions
-    - e.g., ~50~100ns on a 2GHz machine running Linux
+  - e.g., ~50~100ns on a 2GHz machine running Linux
 - switches locality
-    - affects hardware cache!!
+  - affects hardware cache!!
 
 ---
+
+
 
 ## Virtualization
 
@@ -84,19 +108,27 @@ In OSTEP, **Virtualization** is Part 1: the OS makes **one physical machine** lo
 
 > **TL;DR** The OS gives each process the illusion of its own CPU, its own memory, and clean device interfaces — by time-sharing and mapping shared hardware underneath.
 
+
+
 #### Cheat sheet
 
-| Resource | Illusion each process gets | How |
-| --- | --- | --- |
-| **CPU** | its own CPU, always running | time-sharing / scheduling |
-| **Memory** | its own large private address space | address spaces / paging |
-| **Devices** | clean files, sockets, drivers — not raw hardware | abstraction layers |
+
+| Resource    | Illusion each process gets                       | How                       |
+| ----------- | ------------------------------------------------ | ------------------------- |
+| **CPU**     | its own CPU, always running                      | time-sharing / scheduling |
+| **Memory**  | its own large private address space              | address spaces / paging   |
+| **Devices** | clean files, sockets, drivers — not raw hardware | abstraction layers        |
+
+
+
 
 #### What the OS virtualizes
 
 - **CPU** — many processes appear to run at once; the kernel **time-shares** one (or a few) physical cores via scheduling.
 - **Memory** — each process gets its own private **address space**; see [Virtualizing memory](#virtualizing-memory).
 - **Devices** — disks, network, and devices are exposed through **files, sockets, and drivers** so apps do not touch raw hardware.
+
+
 
 #### CPU virtualization
 
@@ -116,6 +148,8 @@ Without virtualization, every program would need to know hardware details, coord
 - scheduling policies (FCFS, MLFQ, lottery, etc.)
 - address spaces, paging, TLBs, swapping
 
+
+
 #### Relation to other intro notes
 
 Virtualization is the **first major job** the OS does for applications: run many programs **as if** each had its own CPU and memory. See [Abstraction or Arbitration](#abstraction-or-arbitration) · [OS Elements](#os-elements) · [Kernel Architectures](#kernel-architectures-monolithic-vs-modular-vs-microkernel).
@@ -123,6 +157,8 @@ Virtualization is the **first major job** the OS does for applications: run many
 **Code examples:** [Figure 2.1 CPU process demo](#ostep-figure-21--cpu-process-demo) · [figure2.1.c](./code/figure2.1.c) · [Virtualizing memory](#virtualizing-memory) · [figure2.3.c](./code/figure2.3.c) · [Figure 2.5 race demo](#ostep-figure-25--race-on-shared-memory) · [figure2.5.c](./code/figure2.5.c)
 
 ---
+
+
 
 ## OSTEP Figure 2.1 — CPU process demo
 
@@ -147,11 +183,13 @@ while (1) {
 
 Program expects **exactly one argument** after the program name:
 
-| invocation | `argc` | result |
-| :--- | :---: | :--- |
-| `./figure2.1` | 1 | usage error |
-| `./figure2.1 hello` | 2 | OK — prints `hello` every second |
-| `./figure2.1 a b` | 3 | usage error |
+
+| invocation          | `argc` | result                           |
+| ------------------- | ------ | -------------------------------- |
+| `./figure2.1`       | 1      | usage error                      |
+| `./figure2.1 hello` | 2      | OK — prints `hello` every second |
+| `./figure2.1 a b`   | 3      | usage error                      |
+
 
 `argv[1]` is the string to print.
 
@@ -175,7 +213,7 @@ Three **separate processes** share one CPU (on a single core). Output **interlea
 
 #### Stop background instances
 
-Executable name is **`figure2.1`** (not `figuare2.1`):
+Executable name is `figure2.1` (not `figuare2.1`):
 
 ```bash
 killall figure2.1
@@ -193,6 +231,8 @@ Check nothing left: `ps aux | grep figure2.1`
 One machine, one core, three programs — each thinks it runs continuously, but the OS **multiplexes** the CPU so they take turns. That is this idea in practice. See [Virtualization](#virtualization).
 
 ---
+
+
 
 ## Virtualizing memory
 
@@ -213,6 +253,8 @@ The OS (with the MMU) maintains **per-process page tables**: virtual page → ph
 - Each process can use `malloc`, stack, code layout as if it owns the machine.
 - The OS can move or swap pages without the program knowing (later: paging, swapping).
 
+
+
 #### Same address, different memory (Figure 2.3)
 
 Run two copies:
@@ -228,6 +270,8 @@ Each prints its own `getpid()` and a heap address from `malloc`. They increment 
 
 ---
 
+
+
 ## OSTEP Figure 2.5 — race on shared memory
 
 > **TL;DR** Two threads share one `counter`; `counter++` is **not atomic** (load–add–store), so concurrent increments interleave and **lose updates**. Needs locks/atomics.
@@ -242,7 +286,7 @@ Two **threads** (same process) each run `worker`, which does `loops` times:
 counter++;
 ```
 
-Expected final value: **`2 × loops`** (each thread increments `loops` times).
+Expected final value: `2 × loops` (each thread increments `loops` times).
 
 #### Compile and run
 
@@ -265,8 +309,8 @@ You asked for **2,000,000** but got **1,047,497** — and the wrong number **cha
 
 `counter++` looks like one step, but the CPU/compilers treat it as **three**:
 
-1. **Load** `counter` from memory into a register  
-2. **Add** 1 in the register  
+1. **Load** `counter` from memory into a register
+2. **Add** 1 in the register
 3. **Store** the result back to `counter`
 
 Two threads can **interleave** those steps:
@@ -288,57 +332,69 @@ Same address space, shared `counter` — unlike [Virtualizing memory](#virtualiz
 
 ---
 
+
+
 ## Kernel Architectures: Monolithic vs Modular vs Microkernel
 
 > **TL;DR** Three ways to structure a kernel, trading **performance** against **isolation/maintainability**: monolithic = everything in the kernel (fast, fragile); microkernel = almost nothing in the kernel (robust, slower); modular = a middle ground (lean core + loadable modules).
 
+
+
 #### At a glance
 
-| Dimension | Monolithic | Modular | Microkernel |
-| --- | --- | --- | --- |
-| Where services run | all in kernel space (privilege bit = 0) | core kernel + loadable modules | tiny kernel; most services in **user space** |
-| Kernel size | large | lean core, load on demand | minimal (only IPC, memory, scheduling) |
-| Performance | fastest (direct calls) | slight indirection cost | slowest (IPC / boundary crossings) |
-| Fault isolation | poor — one driver crash kills the OS | better — modules are separable | excellent — a driver crash ≠ kernel crash |
-| Maintainability | hard (tangled "spaghetti") | update one module independently | clean, small, auditable |
-| Memory footprint | large (everything loaded) | small (load only what you need) | small core |
-| Examples | classic UNIX | Linux (loadable kernel modules) | MINIX, seL4, QNX |
+
+| Dimension          | Monolithic                              | Modular                         | Microkernel                                  |
+| ------------------ | --------------------------------------- | ------------------------------- | -------------------------------------------- |
+| Where services run | all in kernel space (privilege bit = 0) | core kernel + loadable modules  | tiny kernel; most services in **user space** |
+| Kernel size        | large                                   | lean core, load on demand       | minimal (only IPC, memory, scheduling)       |
+| Performance        | fastest (direct calls)                  | slight indirection cost         | slowest (IPC / boundary crossings)           |
+| Fault isolation    | poor — one driver crash kills the OS    | better — modules are separable  | excellent — a driver crash ≠ kernel crash    |
+| Maintainability    | hard (tangled "spaghetti")              | update one module independently | clean, small, auditable                      |
+| Memory footprint   | large (everything loaded)               | small (load only what you need) | small core                                   |
+| Examples           | classic UNIX                            | Linux (loadable kernel modules) | MINIX, seL4, QNX                             |
+
+
+
 
 ### Monolithic OS
+
 A Monolithic OS is an operating system where every service runs inside one large program called the **Kernel**.
 
 Think of it like SwissArmy Knife that has everything you need (tools for files, memory, and the CPU) is built into one single handle. In technical terms, all these services run in **Kernel Mode** (Privilege Bit = 0)
 
 **The Good(+)**
+
 - High Performance: Because everything is in one place, the "tools" can talk to each other instantly. There is no need to jump back and forth between different memory areas.
-
 - Compile-Time Optimization: Since the entire kernel is one big piece of code, the compiler can optimize it all at once (e.g., inlining functions to save time).
-
 - Simple Communication: Modules don't need complex messaging; they just call each other directly.
 
 **The Bad (-)**
+
 - Hard to Manage: The code becomes massive and "tangled." If you want to change one small part, you might accidentally break something else (the "Spaghetti Code" problem).
-
 - System Fragility: If one driver (like a printer driver) crashes, the entire operating system crashes because everything shares the same space.
-
 - Large Memory Footprint: Even if you don't use certain features, they are still loaded into the kernel memory.
 
+
+
 ### Modular OS
+
 The kernel has a core "base" and can plug in extra pieces (modules) only when they are needed. Think of it like a desktop computer. You have the main tower (core kernel), and you can plug in a USB webcam or printer (modules) whenever you want.
 
 **The Pros (+)**
+
 - Maintainability: You can fix or update one specific module (like a network driver) without rewriting the entire operating system.
-
 - Smaller Footprint: You only load what you need. If you don't have a printer, the printer driver doesn't take up any RAM.
-
 - Less Resource Needs: Because the kernel stays lean, it uses less memory and CPU power for background tasks.
 
 **The Cons (-)**
-- Indirection Impacts Performance: To talk to a module, the OS has to go through an interface (the box labeled "Module Interface" in your image). This extra step is called "indirection," and it can make things slightly slower than a pure Monolithic system where everything is already connected.
 
+- Indirection Impacts Performance: To talk to a module, the OS has to go through an interface (the box labeled "Module Interface" in your image). This extra step is called "indirection," and it can make things slightly slower than a pure Monolithic system where everything is already connected.
 - Maintenance Issues: Even though it’s modular, you still have to make sure the modules are compatible with the core version of the OS. If the core changes, the module might break.
 
+
+
 ### Microkernel
+
 A Microkernel is a special way to build an Operating System. Its main goal is to keep the "heart" of the system as small as possible by pushing almost everything into the software layer.
 
 In a regular OS (like Linux), the kernel is huge because it contains everything: the file system, the drivers, and the network. If one small part breaks, the whole system crashes.
@@ -352,11 +408,12 @@ Imagine a manager who refuses to do any manual labor. He only handles the most i
 **The Software (The Workers):** Everything else—like your Wi-Fi driver, your Disk driver, and your File System—is pushed out. They run as separate, independent software programs.
 
 **The Big Benefits (+)**
-- It is "Crash-Proof": If your Disk Driver has a bug and crashes, it only crashes that one software "bubble." The Kernel (the heart) stays alive, and you can just restart that one driver.
 
+- It is "Crash-Proof": If your Disk Driver has a bug and crashes, it only crashes that one software "bubble." The Kernel (the heart) stays alive, and you can just restart that one driver.
 - It is Secure: Because the Kernel is so tiny, it is very easy for engineers to check every single line of code for mistakes or hackers.
 
 **The Big Problem (-)**
+
 - The "Crossing" Cost: Because everything is pushed out into separate software pieces, they have to talk to each other constantly.
 
 The Speed Penalty: To send a message from the "File System software" to the "Disk Driver software," the message must go:
