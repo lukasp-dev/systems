@@ -36,6 +36,7 @@ public:
 
     std::optional<Process> getProcess(int pid) const;
     Process* findProcess(int pid);
+    int findReadyPid(int start_slot, int& found_slot) const;
 
     // Snapshot for `ps` command (later: shell).
     std::vector<Process> listProcesses() const;

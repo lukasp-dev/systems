@@ -7,8 +7,8 @@ namespace minios {
 ProcessTable::ProcessTable() : next_pid_(1) {}
 
 int ProcessTable::createInit(const std::string& name) {
-    const int slot = findUnusedSlotIndex();
-    if (slot < 0) {
+    const int slotIndex = findUnusedSlotIndex();
+    if (slotIndex < 0) {
         return -1;
     }
 
@@ -18,7 +18,9 @@ int ProcessTable::createInit(const std::string& name) {
     init.name = name;
     init.state = ProcessState::Ready;
 
-    if (!insertProcess(slot, std::move(init))) {
+    // std::move(init) is not required, but without it init would be copied.
+    // Use std::move when init is no longer needed and ownership can be transferred.
+    if (!insertProcess(slotIndex, std::move(init))) {
         return -1;
     }
     return 1;
@@ -30,8 +32,8 @@ int ProcessTable::fork(int parent_pid) {
         return -1;
     }
 
-    const int slot = findUnusedSlotIndex();
-    if (slot < 0) {
+    const int slotIndex = findUnusedSlotIndex();
+    if (slotIndex < 0) {
         return -1;
     }
 
@@ -43,10 +45,10 @@ int ProcessTable::fork(int parent_pid) {
     child.cpu_time_ticks = 0;
     child.exit_status = 0;
 
-    if (!insertProcess(slot, std::move(child))) {
+    if (!insertProcess(slotIndex, std::move(child))) {
         return -1;
     }
-    return slots_[slot]->pid;
+    return slots_[slotIndex]->pid;
 }
 
 bool ProcessTable::exitProcess(int pid, int exit_status) {
@@ -100,6 +102,27 @@ Process* ProcessTable::findProcess(int pid) {
         }
     }
     return nullptr;
+}
+
+int ProcessTable::findReadyPid(int start_slot, int& found_slot) const {
+    const int n = static_cast<int>(slots_.size());
+    if (n <= 0) {
+        return -1;
+    }
+    if(start_slot < 0) {
+        start_slot = 0;
+    }
+    start_slot %= n;
+
+    for (int offset = 0; offset < n; ++offset) {
+        const int i = (start_slot + offset) % n;
+        const auto& slot = slots_[static_cast<std::size_t>(i)];
+        if (slot.has_value() && slot->state == ProcessState::Ready) {
+            found_slot = i;
+            return slot->pid;
+        }
+    }
+    return -1;
 }
 
 std::vector<Process> ProcessTable::listProcesses() const {
