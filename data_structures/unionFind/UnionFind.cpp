@@ -36,6 +36,7 @@ public:
         if(rootA == rootB) return false;
 
         // union by size: 작은 트리를 큰 트리 밑에 붙임.
+        // 항상 rootA 가 더 크거나 같은 트리의 루트가 되게 하기 위함.
         if(size[rootA] < size[rootB]) {
             swap(rootA, rootB);
         }

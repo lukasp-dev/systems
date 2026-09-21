@@ -20,6 +20,7 @@
 
 # Nested repo (has its own .git; large data files)
 digital-art-auction-engine/
+OS/MiniOS/
 
 # Local build artifacts (no extension)
 hello
@@ -36,6 +37,8 @@ Effective+Modern+C++.pdf
 high-perf-auction-engine
 
 # specific files
+basics/09.concurrency/thread1_with_lambda
+basics/09.concurrency/thread4_with_mutex
 data_structures/arrayList/ArrayList
 data_structures/linkedList/CircularSinglyLinkedList
 data_structures/linkedList/DoublyLinkedList
