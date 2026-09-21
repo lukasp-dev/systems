@@ -39,6 +39,20 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+/*
+// increasing: next smaller
+for(int i=0; i<n; i++) {
+    while(!st.empty() && nums[st.top()] > nums[i]) st.pop();
+    st.push(i);
+}
+
+// decreasing: next greater
+for(int i=0; i<n; i++) {
+    while(!st.empty() && nums[st.top()] < nums[i]) st.pop();
+    st.push(i);
+}
+*/
+
 class Solution {
 public:
     vector<int> dailyTemperatures(vector<int>& temperatures) {
